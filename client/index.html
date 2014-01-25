@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+<html lang="en" ng-app="olaApp">
+    <head>
+        <link rel="stylesheet" href="css/index.css" media="all">
+        <link href='http://fonts.googleapis.com/css?family=Ubuntu:300' rel='stylesheet' type='text/css'>
+        <title>Online Lecture Aid</title>
+        <script src="/js/angular.min.js"></script>
+        <script src="/js/controllers.js"></script>
+        <script src="/socket.io/socket.io.js"</script>
+        <script type="text/javascript"></script>
+    </head>
+    <body>
+        <div class="introheader outer">
+            <div class="middle">
+                <div class="inner">
+                    <h1>Online Lecture Aid</h1>
+                </div>
+            </div>
+        </div>
+        <div class="main" ng-controller="SessionCtrl">
+            <div class="sidebarcontainer">
+                <div>
+                    <h3>Sessions</h3>
+                    <input type="text" ng-model="sessionName" placeholder="Session Name"><br>
+                    <input class="minimal" type="submit" ng-click="createSession()" value="CREATE">
+                    <div class="list">
+                        <ul>
+                            <li ng-class="getClass($index)" ng-click="listClick($index)" ng-repeat="session in sessions">{{session.name}}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="contentcontainer">
+                <div>
+                    <h3>{{selected.name}}</h3><br>
+                </div>
+            </div>
+        </body>
+    </html>
