@@ -1,22 +1,23 @@
 var olaApp = angular.module('olaApp', []);
 
-olaApp.controller('SessionCtrl', function($scope) {
+olaApp.controller('SessionCtrl', function($scope, $window) {
 
     $scope.sessionName = '';
     $scope.sessions = [];
-    $scope.selected = { name: 'Create or Select a Session', data: ''};
+    $scope.selected = { name: 'Create or Select a Session', createDate: ''};
+    $scope.clickedSession = false;
     var socket = io.connect('/lobby');
     socket.on('connect', function(data) {
         //identify on connect
     });
 
-    socket.on('sessionData', function(data) {
+    socket.on('sessiondata', function(data) {
         console.log(data);
         $scope.sessions = data;
         $scope.$apply();
     });
 
-    socket.on('newSession', function(session) {
+    socket.on('newsession', function(session) {
         console.log('Client: NewSession Fired');
         $scope.sessions.push(session);
         $scope.$apply();
@@ -24,12 +25,17 @@ olaApp.controller('SessionCtrl', function($scope) {
     });
 
     $scope.createSession = function createSession() {
-        socket.emit('newSession', $scope.sessionName);
+        socket.emit('newsession', $scope.sessionName);
         $scope.sessionName = '';
     }
 
+    $scope.joinSession = function joinSession() {
+        $window.open($window.location.host +'/'+ $scope.selected.name);
+    }
+
     $scope.listClick = function listClick(indexVal) {
-        $scope.selected.name = $scope.sessions[indexVal].name;
+        $scope.selected = $scope.sessions[indexVal];
+        $scope.clickedSession = true;
     }
 
     $scope.getClass = function getClass(indexVal) {

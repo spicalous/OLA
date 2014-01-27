@@ -6,7 +6,7 @@
         <title>Online Lecture Aid</title>
         <script src="/js/angular.min.js"></script>
         <script src="/js/controllers.js"></script>
-        <script src="/socket.io/socket.io.js"</script>
+        <script src="/socket.io/socket.io.js"></script>
         <script type="text/javascript"></script>
     </head>
     <body>
@@ -33,7 +33,10 @@
             <div class="contentcontainer">
                 <div>
                     <h3>{{selected.name}}</h3><br>
+                    <p>{{selected.createDate}}</p>
+                    <input class="minimal" type="submit" ng-show="clickedSession" ng-click="joinSession()" value="JOIN SESSION">
                 </div>
             </div>
-        </body>
-    </html>
+        </div>
+    </body>
+</html>
