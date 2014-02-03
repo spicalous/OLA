@@ -1,123 +1,65 @@
 <!DOCTYPE HTML>
-<html lang="en" ng-app>
-	<head>
-		<link rel="stylesheet" href="css/responsivegridsystem/css/html5reset.css" media="all">
-		<link rel="stylesheet" href="css/responsivegridsystem/css/responsivegridsystem.css" media="all">
-		<link rel="stylesheet" href="css/responsivegridsystem/css/col.css" media="all">
-		<link rel="stylesheet" href="css/responsivegridsystem/css/5cols.css" media="all">
-		<link rel="stylesheet" href="css/responsivegridsystem/css/10cols.css" media="all">
-		<link rel="stylesheet" href="css/index.css" media="all">
-		<title>Online Lecture Aid</title>
-		<script src="/socket.io/socket.io.js"></script>
-		<script src="/js/angular.min.js"></script>
-		<script type="text/javascript"></script>
-		<script>
-			function questionController($scope) {
-				var socket = io.connect();
-
-				$scope.questions = [];
-				$scope.question = '';
-
-				socket.on('connect', function(data) {
-					//identify on connect
-				});
-
-				socket.on('question', function(question) {
-					$scope.questions.push(question);
-					$scope.questions.sort(specificSort('score'));
-					$scope.$apply();
-				});
-
-				socket.on('vote', function(data) {
-					$scope.questions[data.index].score = $scope.questions[data.index].score + data.value;
-					$scope.questions.sort(specificSort('score'));
-					$scope.$apply();
-					//for (var i = 0; i < $scope.questions.length; i++) {
-					//	console.log(" - " +$scope.questions[i].question+ " , " +$scope.questions[i].score);
-					//}
-				});
-
-				$scope.vote = function vote(index, value, button) {
-					var data = {
-						index: index,
-						value: value,
-					};
-					socket.emit('vote', data);
-				};
-
-				$scope.send = function send() {
-					socket.emit('question', $scope.question);
-					$scope.question = '';
-				};
-
-				function specificSort(name) {
-					return function(b, a) {
-						return 1 * (a[name] - b[name]);
-					}
-				}
-			}
-		</script>
-	</head>
-	<body>
-		<div id="headercontainer">
-			<h1>Online Lecture Aid</h1>
-		</div>
-		<div id="maincontainer" ng-controller="questionController">
-			<div id="maincontent">
-				<div class="section group">
-					<h2>Questions?</h2>
-				</div>
-				<div class="section group">
-					<div class="col span_1_of_10">Score</div>
-					<div class="col span_1_of_10"></div>
-					<div class="col span_8_of_10">Question</div>
-				</div>
-				<div class="section group" ng-repeat="question in questions">
-					<div class="col span_1_of_10">{{question.score}}</div>
-					<div class="col span_1_of_10">
-						<input class="btn_vote_up" type="button" ng-click="vote($index, 1, this)" ng-disabled="clicked">
-						<input class="btn_vote_down" type="button" ng-click="vote($index, -1, this)" ng-disabled="clicked">
-					</div>
-					<div class="col span_8_of_10">{{question.question}}</div>
-				</div>
-				<div class="section group">
-					<form ng-submit="send()">
-						<input class="col span_4_of_5" type="text" ng-model="question" placeholder="Ask a Question">
-						<input id="submitButton" class="col span_1_of_5" type="submit" value="Submit Question">
-					</form>
-				</div>
-				<div class="section group">
-					<h2>Users</h2>
-					<ul id="users">
-					</ul>
-				</div>
-			</div>
-		</div>
-		<div id="footercontainer">
-		</div>
-	</body>
+<html lang="en" ng-app="olaApp">
+    <head>
+        <link rel="stylesheet" href="css/student.css" media="all">
+        <link href='http://fonts.googleapis.com/css?family=Ubuntu:300' rel='stylesheet' type='text/css'>
+        <title>Online Lecture Aid</title>
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="/js/angular.min.js"></script>
+        <script src="/js/angularModule.js"></script>
+        <script src="/js/questionController.js"></script>
+        <script type="text/javascript"></script>
+    </head>
+    <body>
+        <div id="maincontainer" ng-controller="QuestionCtrl">
+            <div id="maincontent">
+                <div class="section group">
+                    <h2>Questions?</h2>
+                </div>
+                <div class="section group">
+                    <div class="col span_1_of_10">Score</div>
+                    <div class="col span_1_of_10"></div>
+                    <div class="col span_8_of_10">Question</div>
+                </div>
+                <div class="section group" ng-repeat="question in questions">
+                    <div class="col span_1_of_10">{{question.score}}</div>
+                    <div class="col span_1_of_10">
+                        <input class="btn_vote_up" type="button" ng-click="vote($index, 1)" ng-disabled="clicked">
+                        <input class="btn_vote_down" type="button" ng-click="vote($index, -1)" ng-disabled="clicked">
+                    </div>
+                    <div class="col span_8_of_10">{{question.question}}</div>
+                </div>
+                <div class="section group">
+                    <form ng-submit="send()">
+                        <input class="col span_4_of_5" type="text" ng-model="question" placeholder="Ask a Question">
+                        <input id="submitButton" class="col span_1_of_5" type="submit" value="Submit Question">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </body>
 </html>
 
 <!--
 <table class="table">
-	<thead>
-		<tr>
-			<th id="firstcol" class="col span_1_of_10">Score</th>
-			<th class="col span_1_of_10"></th>
-			<th class="col span_8_of_10">Question</th>
-		</tr>
-	</thead>
-	<tbody>
-		<tr ng-repeat="question in questions">
-			<td id="firstcol2" >{{question.score}}</td>
-			<td>
-				<input class="btn_vote_up" type="button" ng-click="vote($index, 1, this)" ng-disabled="clicked">
-				<input class="btn_vote_down" type="button" ng-click="vote($index, -1, this)" ng-disabled="clicked">
-			</td>
-			</input>
-		</td>
-		<td>{{question.question}}</td>
-	</tr>
+    <thead>
+        <tr>
+            <th id="firstcol" class="col span_1_of_10">Score</th>
+            <th class="col span_1_of_10"></th>
+            <th class="col span_8_of_10">Question</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="question in questions">
+            <td id="firstcol2" >{{question.score}}</td>
+            <td>
+                <input class="btn_vote_up" type="button" ng-click="vote($index, 1, this)" ng-disabled="clicked">
+                <input class="btn_vote_down" type="button" ng-click="vote($index, -1, this)" ng-disabled="clicked">
+            </td>
+            </input>
+        </td>
+        <td>{{question.question}}</td>
+    </tr>
 </tbody>
-				</table>
-				-->
+                </table>
+                -->
