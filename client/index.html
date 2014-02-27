@@ -1,6 +1,7 @@
 <!DOCTYPE HTML>
 <html lang="en" ng-app="olaApp">
     <head>
+        <link rel="stylesheet" href="css/reset.css" media="all">
         <link rel="stylesheet" href="css/index.css" media="all">
         <link href='http://fonts.googleapis.com/css?family=Ubuntu:300' rel='stylesheet' type='text/css'>
         <title>Online Lecture Aid</title>
@@ -22,8 +23,10 @@
             <div class="sidebarcontainer">
                 <div>
                     <h3>Sessions</h3>
-                    <input type="text" ng-model="sessionName" placeholder="Session Name"><br>
-                    <input class="minimal" type="submit" ng-click="createSession()" value="CREATE">
+                    <form ng-submit="createSession()">
+                        <input type="text" name="session" ng-model="sessionName" placeholder="Session Name"><br>
+                        <input type="submit" class="minimal" value="CREATE">
+                    </form>
                     <div class="list">
                         <ul>
                             <li ng-class="getClass($index)" ng-click="listClick($index)" ng-repeat="session in sessions">{{session.name}}</li>

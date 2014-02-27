@@ -24,9 +24,9 @@ var iorooms = [];
 
 var lobby = io.of('/lobby').on('connection', function(socket) {
 
-    console.log('lobby connection');
-
     sockets.push(socket);
+    console.log('User has joined: ' + socket.id);
+    console.log('lobby socket length: ' + sockets.length);
     sessions.forEach(function(data) {
         socket.emit('newsession', data);
     });
@@ -44,7 +44,7 @@ var lobby = io.of('/lobby').on('connection', function(socket) {
 
     socket.on('disconnect', function() {
         sockets.splice(sockets.indexOf(socket), 1);
-        console.log('Client Disconnected' + socket);
+        console.log('User has disconnected: ' + socket.id);
     });
 
 });
@@ -60,14 +60,12 @@ function createIORoom(roomId) {
     var sockets = [];
     var room = io.of(roomId).on('connection', function(socket) {
 
-        console.log('room connection: ' + roomId);
-
         sockets.push(socket);
+        console.log('User has joined: ' + socket.id);
+        console.log(roomId + ' socket length: ' + sockets.length);
         questions.forEach(function(data) {
             socket.emit('question', data);
         });
-
-        sockets.push(socket);
 
         socket.on('question', function(question) {
             console.log('question: ' +question);
@@ -88,6 +86,9 @@ function createIORoom(roomId) {
         });
 
         socket.on('disconnect', function() {
+            sockets.splice(sockets.indexOf(socket), 1);
+            console.log('User has disconnected: ' + socket.id);
+            console.log('Client Disconnected');
         });
 
     });

@@ -1,7 +1,10 @@
 <!DOCTYPE HTML>
 <html lang="en" ng-app="olaApp">
     <head>
+        <link rel="stylesheet" href="css/reset.css" media="all">
         <link rel="stylesheet" href="css/student.css" media="all">
+        <link rel="stylesheet" href="css/col.css" media="all">
+        <link rel="stylesheet" href="css/8cols.css" media="all">
         <link href='http://fonts.googleapis.com/css?family=Ubuntu:300' rel='stylesheet' type='text/css'>
         <title>Online Lecture Aid</title>
         <script src="/socket.io/socket.io.js"></script>
@@ -11,28 +14,26 @@
         <script type="text/javascript"></script>
     </head>
     <body>
-        <div id="maincontainer" ng-controller="QuestionCtrl">
+        <div class="main" ng-controller="QuestionCtrl">
             <div id="maincontent">
+                <h2>Questions?</h2>
                 <div class="section group">
-                    <h2>Questions?</h2>
-                </div>
-                <div class="section group">
-                    <div class="col span_1_of_10">Score</div>
-                    <div class="col span_1_of_10"></div>
-                    <div class="col span_8_of_10">Question</div>
+                    <div class="col span_1_of_8">Score</div>
+                    <div class="col span_1_of_8"></div>
+                    <div class="col span_6_of_8">Question</div>
                 </div>
                 <div class="section group" ng-repeat="question in questions">
-                    <div class="col span_1_of_10">{{question.score}}</div>
-                    <div class="col span_1_of_10">
+                    <div class="col span_1_of_8">{{question.score}}</div>
+                    <div class="col span_1_of_8">
                         <input class="btn_vote_up" type="button" ng-click="vote($index, 1)" ng-disabled="clicked">
                         <input class="btn_vote_down" type="button" ng-click="vote($index, -1)" ng-disabled="clicked">
                     </div>
-                    <div class="col span_8_of_10">{{question.question}}</div>
+                    <div class="col span_6_of_8">{{question.question}}</div>
                 </div>
                 <div class="section group">
                     <form ng-submit="send()">
-                        <input class="col span_4_of_5" type="text" ng-model="question" placeholder="Ask a Question">
-                        <input id="submitButton" class="col span_1_of_5" type="submit" value="Submit Question">
+                        <input type="text" ng-model="question" placeholder="Ask a Question">
+                        <input class="minimal" type="submit" value="SUBMIT">
                     </form>
                 </div>
             </div>
