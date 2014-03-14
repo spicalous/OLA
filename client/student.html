@@ -28,7 +28,7 @@
                         <input class="btn_vote_up" type="button" ng-click="vote($index, 1)" ng-disabled="clicked">
                         <input class="btn_vote_down" type="button" ng-click="vote($index, -1)" ng-disabled="clicked">
                     </div>
-                    <div class="col span_6_of_8">{{question.question}}</div>
+                    <div class="col span_6_of_8">{{question.name}}</div>
                 </div>
                 <div class="section group">
                     <form ng-submit="send()">

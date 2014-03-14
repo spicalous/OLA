@@ -11,13 +11,19 @@
         <script type="text/javascript"></script>
     </head>
     <body>
-        <h1>Overview</h1>
-        <form action="">
-            <select ng-options="s.name for s in sessions">
-            </select>
-        </form>
-        <div>
-            Content
+        <div class="main" ng-controller="LectureCtrl">
+            <h1>Overview</h1>
+            <form action="">
+                <select ng-model="selectedSession" ng-change='requestQuestionArray()' ng-options="session.name for session in sessionArray">
+                    <option value="">-- choose session --</option>
+                </select>
+            </form>
+            <div>
+                {{selectedSession.name}}<br>{{selectedSession.createDate}}
+            </div>
+            <div ng-repeat='question in selectedSession.questionArray'>
+                {{question.name}}, {{question.score}}
+            </div>
         </div>
     </body>
 </html>

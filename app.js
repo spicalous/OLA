@@ -10,24 +10,24 @@ app.get('/', function(request, response) {
     response.sendfile(__dirname + '/index.html');
 });
 
-app.get('/:sessionid', function(request, response) {
-    response.sendfile(__dirname + '/client/student.html');
-});
-
 app.get('/lecturer', function(request, response) {
     response.sendfile(__dirname + '/client/lecturer.html');
 });
 
-var sessions = [];
-var sockets = [];
-var iorooms = [];
+app.get('/:sessionid', function(request, response) {
+    response.sendfile(__dirname + '/client/student.html');
+});
+
+var sessionArray = [];
+var lobbySocketArray = [];
+var ioroomArray = [];
 
 var lobby = io.of('/lobby').on('connection', function(socket) {
 
-    sockets.push(socket);
+    lobbySocketArray.push(socket);
     console.log('User has joined: ' + socket.id);
-    console.log('lobby socket length: ' + sockets.length);
-    sessions.forEach(function(data) {
+    console.log('lobby socket length: ' + lobbySocketArray.length);
+    sessionArray.forEach(function(data) {
         socket.emit('newsession', data);
     });
 
@@ -39,11 +39,12 @@ var lobby = io.of('/lobby').on('connection', function(socket) {
         var session = new Session(sessionName);
         createIORoom('/question/' + sessionName);
         lobby.emit('newsession', session);
-        sessions.push(session);
+        lectureSocket.emit('newsession', session);
+        sessionArray.push(session);
     });
 
     socket.on('disconnect', function() {
-        sockets.splice(sockets.indexOf(socket), 1);
+        lobbySocketArray.splice(lobbySocketArray.indexOf(socket), 1);
         console.log('User has disconnected: ' + socket.id);
     });
 
@@ -54,46 +55,75 @@ function Session(sessionName, socket) {
     this.createDate = 'Session created on: ' + new Date().toUTCString();
 }
 
-function createIORoom(roomId) {
+function createIORoom(roomNs) {
 
-    var questions = [];
-    var sockets = [];
-    var room = io.of(roomId).on('connection', function(socket) {
+    //make sure these values are up to date
+    var room = {
+        name: roomNs,
+        questionArray: [],
+        ioSocketArray: [],
+        socketroom: ''
+    }
+    room.socketroom = io.of(roomNs).on('connection', function(socket) {
 
-        sockets.push(socket);
+        room.ioSocketArray.push(socket);
         console.log('User has joined: ' + socket.id);
-        console.log(roomId + ' socket length: ' + sockets.length);
-        questions.forEach(function(data) {
+        console.log(roomNs + ' socket length: ' + room.ioSocketArray.length);
+        room.questionArray.forEach(function(data) {
             socket.emit('question', data);
         });
 
         socket.on('question', function(question) {
             console.log('question: ' +question);
             var text = String(question || '');
-            if (!text)
-            return;
-        var question = {
-            question: question,
-            score: 1
-        }
-        room.emit('question', question);
-        questions.push(question);
+            if (!text) {
+                return;
+            }
+            var question = {
+                name: question,
+                score: 1
+            }
+            room.socketroom.emit('question', question);
+            room.questionArray.push(question);
         });
 
         socket.on('vote', function(voteData) {
-            questions[voteData.index].score = questions[voteData.index].score + voteData.value;
-            room.emit('vote', voteData);
+            room.questionArray[voteData.index].score = room.questionArray[voteData.index].score + voteData.value;
+            room.socketroom.emit('vote', voteData);
         });
 
         socket.on('disconnect', function() {
-            sockets.splice(sockets.indexOf(socket), 1);
+            room.ioSocketArray.splice(room.ioSocketArray.indexOf(socket), 1);
             console.log('User has disconnected: ' + socket.id);
             console.log('Client Disconnected');
         });
 
     });
-    iorooms.push(room);
+    ioroomArray.push(room);
 
 }
+
+var lectureSocket = io.of('/lecturer').on('connection', function(socket) {
+
+    console.log('Lecturer has connected');
+    sessionArray.forEach(function(data) {
+        socket.emit('newsession', data);
+    });
+
+    socket.on('requestQuestionArray', function(sessionName) {
+        var result; for (var i = 0; i < ioroomArray.length; i++) {
+            if (ioroomArray[i].name === '/question/'+sessionName) {
+                result = ioroomArray[i].questionArray;
+                break;
+            }
+        }
+        socket.emit('requestQuestionArray', result);
+    });
+
+    socket.on('disconnect', function() {
+        console.log('Lecturer has disconnected');
+    });
+
+});
 
 server.listen(8080);

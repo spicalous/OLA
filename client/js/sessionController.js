@@ -2,8 +2,8 @@ olaApp.controller('SessionCtrl', function($scope, $window) {
 
     var lobby = io.connect('/lobby');
 
-    $scope.sessionName = '';
-    $scope.sessions = [];
+    $scope.session = '';
+    $scope.sessionArray = [];
     $scope.selected = { name: 'Create or Select a Session', createDate: ''};
     $scope.clickedSession = false;
 
@@ -11,22 +11,30 @@ olaApp.controller('SessionCtrl', function($scope, $window) {
         //identify on connect
     });
 
-    lobby.on('sessiondata', function(data) {
-        console.log('sessiondata: ' +  data);
-        $scope.sessions = data;
-        $scope.$apply();
-    });
-
     lobby.on('newsession', function(session) {
         console.log('newsession: ' + session);
-        $scope.sessions.push(session);
+        $scope.sessionArray.push(session);
         $scope.$apply();
-        console.log($scope.sessions);
+        console.log($scope.sessionArray);
     });
 
     $scope.createSession = function createSession() {
-        lobby.emit('newsession', $scope.sessionName);
-        $scope.sessionName = '';
+        if (isDuplicate($scope.session)) {
+            $scope.session = '';
+            $window.alert('Duplicate session name\nPlease enter a new name');
+        } else {
+            lobby.emit('newsession', $scope.session);
+            $scope.session = '';
+        }
+    }
+
+    function isDuplicate(name) {
+        for (var i = 0; i < $scope.sessionArray.length; i++) {
+            if ($scope.sessionArray[i].name === name) {
+                return true;
+            }
+        }
+        return false;
     }
 
     $scope.joinSession = function joinSession() {
@@ -34,12 +42,12 @@ olaApp.controller('SessionCtrl', function($scope, $window) {
     }
 
     $scope.listClick = function listClick(indexVal) {
-        $scope.selected = $scope.sessions[indexVal];
+        $scope.selected = $scope.sessionArray[indexVal];
         $scope.clickedSession = true;
     }
 
     $scope.getClass = function getClass(indexVal) {
-        if ($scope.sessions[indexVal].name == $scope.selected.name) {
+        if ($scope.sessionArray[indexVal].name == $scope.selected.name) {
             return 'active';
         } else {
             return '';

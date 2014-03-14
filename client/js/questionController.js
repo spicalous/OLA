@@ -1,6 +1,6 @@
 olaApp.controller('QuestionCtrl', function($scope, $window) {
 
-    var roomId = '/question' + $window.location.pathname;
+    var roomId = '/question' + unescape($window.location.pathname);
     var qnamespace = io.connect(roomId);
 
     $scope.question = '';
