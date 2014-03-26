@@ -19,109 +19,140 @@ app.get('/:sessionid', function(request, response) {
 });
 
 var sessionArray = [];
-var lobbySocketArray = [];
+var sessionSocketArray = [];
 var ioroomArray = [];
 
-var lobby = io.of('/lobby').on('connection', function(socket) {
+var sessionSocket = io.of('/sessionSocket').on('connection', function(socket) {
 
-    lobbySocketArray.push(socket);
-    console.log('User has joined: ' + socket.id);
-    console.log('lobby socket length: ' + lobbySocketArray.length);
-    sessionArray.forEach(function(data) {
-        socket.emit('newsession', data);
+    sessionSocketArray.push(socket);
+    sessionArray.forEach(function(item) {
+        socket.emit('init', item);
     });
+    console.info('SERVER: User '+socket.id+' has joined the session page');
+    console.info('SERVER: Session socket length: ' + sessionSocketArray.length);
 
-    socket.on('newsession', function(sessionName) {
-        console.log('newsession: ' + sessionName);
-        var text = String(sessionName || '');
+    socket.on('newsession', function(session) {
+        console.info('SERVER: on \'newsession\' - request to create ' + session.name);
+        var text = String(session.name || '');
         if (!text)
             return;
-        var session = new Session(sessionName);
-        createIORoom('/question/' + sessionName);
-        lobby.emit('newsession', session);
+        var keyArray = generateRoomKey(session.noOfKeys);
+        createIORoom(session, keyArray);
+        socket.emit('newsession', session, keyArray);
         lectureSocket.emit('newsession', session);
         sessionArray.push(session);
     });
 
     socket.on('disconnect', function() {
-        lobbySocketArray.splice(lobbySocketArray.indexOf(socket), 1);
-        console.log('User has disconnected: ' + socket.id);
+        sessionSocketArray.splice(sessionSocketArray.indexOf(socket), 1);
+        console.info('SERVER: User '+socket.id+' in session has disconnected');
     });
 
 });
 
-function Session(sessionName, socket) {
-    this.name = sessionName;
-    this.createDate = 'Session created on: ' + new Date().toUTCString();
+function generateRoomKey(numberOfKeys) {
+    var keyArray = [];
+    var count = 0;
+    while (keyArray.length < numberOfKeys) {
+        count++;
+        var key = ("00000" + (Math.random()*Math.pow(36,5) << 0).toString(36)).substr(-5);
+        var exists = false;
+        for (var i = 0; i < keyArray.length; i++) {
+            if (keyArray[i].key === key) {
+                exists = true;
+            }
+        }
+        if (!exists) {
+            var data = {
+                key: key,
+                used: false
+            };
+            keyArray.push(data);
+        }
+    }
+    console.info('SERVER: Generated ' + count + ' times');
+    return keyArray;
 }
 
-function createIORoom(roomNs) {
+function createIORoom(session, keyArray) {
 
-    //make sure these values are up to date
     var room = {
-        name: roomNs,
+        name: session.name,
+        createDate: session.createDate,
         questionArray: [],
-        ioSocketArray: [],
-        socketroom: ''
+        roomKeyArray: keyArray,
+        keyvotes: [],
+        roomSocketArray: [],
+        roomSocket: ''
     }
-    room.socketroom = io.of(roomNs).on('connection', function(socket) {
+    room.roomSocket = io.of('/question/'+session.name).on('connection', function(socket) {
 
-        room.ioSocketArray.push(socket);
-        console.log('User has joined: ' + socket.id);
-        console.log(roomNs + ' socket length: ' + room.ioSocketArray.length);
+        room.roomSocketArray.push(socket);
+        //
+        console.info('SERVER: User '+socket.id+' has joined the room page');
+        console.info('SERVER: /question/'+session.name+'  socket length: ' + room.roomSocketArray.length);
+        //
         room.questionArray.forEach(function(data) {
-            socket.emit('question', data);
+            socket.emit('newquestion', data);
         });
+        socket.emit('keyArray', room.roomKeyArray);
+        socket.emit('keyVoteArray', room.keyVotes);
 
-        socket.on('question', function(question) {
-            console.log('question: ' +question);
-            var text = String(question || '');
+        socket.on('newquestion', function(question) {
+            //
+            console.info('SERVER: on \'question\' - '+question.name);
+            //
+            var text = String(question.name || '');
             if (!text) {
                 return;
             }
-            var question = {
-                name: question,
-                score: 1
-            }
-            room.socketroom.emit('question', question);
+            socket.emit('newquestion', question);
             room.questionArray.push(question);
         });
 
         socket.on('vote', function(voteData) {
-            room.questionArray[voteData.index].score = room.questionArray[voteData.index].score + voteData.value;
-            room.socketroom.emit('vote', voteData);
+            for (var i = 0; i < room.questionArray.length; i++) {
+                if (room.questionArray[i].name === voteData.name) {
+                    room.questionArray[i].score = room.questionArray[i].score + voteData.value;
+                    break;
+                }
+            }
+            socket.emit('vote', voteData);
         });
 
         socket.on('disconnect', function() {
-            room.ioSocketArray.splice(room.ioSocketArray.indexOf(socket), 1);
-            console.log('User has disconnected: ' + socket.id);
-            console.log('Client Disconnected');
+            room.roomSocketArray.splice(room.roomSocketArray.indexOf(socket), 1);
+            //
+            console.info('SERVER: User '+socket.id+' in /question/'+room.name+ ' has disconnected');
+            //
         });
 
     });
     ioroomArray.push(room);
-
 }
 
 var lectureSocket = io.of('/lecturer').on('connection', function(socket) {
 
-    console.log('Lecturer has connected');
+    //
+    console.info('SERVER: User '+socket.id+' has joined the lecture page');
+    //
     sessionArray.forEach(function(data) {
         socket.emit('newsession', data);
     });
 
     socket.on('requestQuestionArray', function(sessionName) {
-        var result; for (var i = 0; i < ioroomArray.length; i++) {
-            if (ioroomArray[i].name === '/question/'+sessionName) {
-                result = ioroomArray[i].questionArray;
+        var result;
+        for (var i = 0; i < ioroomArray.length; i++) {
+            if (ioroomArray[i].name === sessionName) {
+                result = ioroomArray[i];
                 break;
             }
         }
-        socket.emit('requestQuestionArray', result);
+        socket.emit('requestQuestionArray', result.questionArray);
     });
 
     socket.on('disconnect', function() {
-        console.log('Lecturer has disconnected');
+        console.info('SERVER: User '+socket.id+' has disconnected from the lecture page');
     });
 
 });

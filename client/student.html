@@ -16,13 +16,14 @@
     <body>
         <div class="main" ng-controller="QuestionCtrl">
             <div id="maincontent">
-                <h2>Questions?</h2>
+                <input type="text" ng-model="userName" placeholder="Anonymous">
+                <h2>Questions? - {{userKey}}</h2>
                 <div class="section group">
                     <div class="col span_1_of_8">Score</div>
                     <div class="col span_1_of_8"></div>
                     <div class="col span_6_of_8">Question</div>
                 </div>
-                <div class="section group" ng-repeat="question in questions">
+                <div class="section group" ng-repeat="question in questionArray">
                     <div class="col span_1_of_8">{{question.score}}</div>
                     <div class="col span_1_of_8">
                         <input class="btn_vote_up" type="button" ng-click="vote($index, 1)" ng-disabled="clicked">
@@ -32,7 +33,7 @@
                 </div>
                 <div class="section group">
                     <form ng-submit="send()">
-                        <input type="text" ng-model="question" placeholder="Ask a Question">
+                        <input type="text" ng-model="questionName" placeholder="Ask a Question">
                         <input class="minimal" type="submit" value="SUBMIT">
                     </form>
                 </div>
