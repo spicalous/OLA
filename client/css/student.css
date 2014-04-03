@@ -14,3 +14,45 @@
     border-bottom: 1px solid black;
     border-top: 1px solid black;
 }
+
+.table {
+    height: 40px;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+#uparrow {
+    background: url("../images/upsprite.png");
+    background-position: 0px -25px;
+    overflow: hidden;
+    width: 35px;
+    height: 20px;
+}
+
+#downarrow {
+    background: url("../images/downsprite.png");
+    background-position: 0px -25px;
+    overflow: hidden;
+    width: 35px;
+    height: 20px;
+}
+
+#uparrow:hover {
+    background-position: 0px 0px;
+    opacity: 0.5;
+    cursor: pointer;
+}
+
+#downarrow:hover {
+    background-position: 0px 0px;
+    opacity: 0.5;
+    cursor: pointer;
+}
+
+#uparrow.on {
+    background-position: 0px 0px;
+}
+
+#downarrow.on {
+    background-position: 0px 0px;
+}

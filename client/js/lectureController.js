@@ -21,9 +21,23 @@ olaApp.controller('LectureCtrl', function($scope, $window) {
         $scope.$apply();
     });
 
-    lectureSocket.on('newquestion', function(question, roomname) {
-        if ($scope.selectedSession.name === roomname) {
+    lectureSocket.on('newquestion', function(question, roomName) {
+        if ($scope.selectedSession.name === roomName) {
             $scope.selectedSession.questionArray.push(question);
+            $scope.$apply();
+        }
+    });
+
+    lectureSocket.on('vote', function(voteData, roomName) {
+        console.log(voteData);
+        console.log($scope.selectedSession.name);
+        if ($scope.selectedSession.name === roomName) {
+            for (var i = 0; i < $scope.selectedSession.questionArray.length; i++) {
+                if ($scope.selectedSession.questionArray[i].name === voteData.name) {
+                    $scope.selectedSession.questionArray[i].score = $scope.selectedSession.questionArray[i].score + voteData.value;
+                    break;
+                }
+            }
             $scope.$apply();
         }
     });

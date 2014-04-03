@@ -3,11 +3,12 @@ olaApp.controller('QuestionCtrl', function($scope, $window) {
     var namespace = '/question' + unescape($window.location.pathname);
     var questionSocket = io.connect(namespace);
 
+    $scope.userKey = '';
+    $scope.userName = '';
     $scope.questionName = '';
     $scope.questionArray = [];
     $scope.keyArray = '';
-    $scope.userKey = '';
-    $scope.userName = '';
+    $scope.keyVoteArray = '';
 
     questionSocket.on('connect', function(data) {
         $scope.setName();
@@ -46,20 +47,19 @@ olaApp.controller('QuestionCtrl', function($scope, $window) {
         console.log(names);
     });
 
-    $scope.vote = function vote(index, value) {
-        if (votable) {
-            var voteData = {
-                name: $scope.questionArray[index].name,
-                value: value
-            };
-            questionSocket.emit('vote', voteData);
-        }
-    };
+    $scope.vote = function vote(question, value) {
+        var voteData = {
+            key: $scope.userKey,
+            name: question.name,
+            value: value
+        };
+        questionSocket.emit('vote', voteData);
+    }
 
     $scope.send = function send() {
         var question = {
             name: $scope.questionName,
-            score: 1,
+            score: 0,
             key: $scope.userKey,
             user: $scope.userName
         }
@@ -92,7 +92,17 @@ olaApp.controller('QuestionCtrl', function($scope, $window) {
         return false
     }
 
-    function find(item, array) {
+    $scope.getClass = function getClass(question, value) {
+        for (var i = 0; i < $scope.keyVoteArray.length; i++) {
+            console.log('k: ' + $scope.keyVoteArray[i].key +' n: ' +$scope.keyVoteArray[i].name +' v: '+ $scope.keyVoteArray[i].value);
+            if ($scope.keyVoteArray[i].key === $scope.userKey) {
+                if ($scope.keyVoteArray[i].name === question.name) {
+                    if ($scope.keyVoteArray[i].value === value) {
+                        return 'on';
+                    }
+                }
+            }
+        }
     }
 
     function specificSort(name) {

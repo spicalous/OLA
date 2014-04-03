@@ -68,7 +68,7 @@ function createIORoom(session) {
         createDate: session.createDate,
         questionArray: [],
         keyArray: generateRoomKey(session.noOfKeys),
-        keyvotes: [],
+        keyVotes: [],
         roomSocketArray: [],
         roomSocket: '',
     }
@@ -94,23 +94,60 @@ function createIORoom(session) {
         });
 
         socket.on('vote', function(voteData) {
+            switch(checkVotes(voteData, room.keyVotes)) {
+                case 1:
+                    voteData.value = voteData.value + voteData.value;
+                    vote(voteData);
+                    updateNewVote(socket, voteData, room.keyVotes, room.name);
+                    break;
+                case 2:
+                    vote(voteData);
+                    room.keyVotes.push(voteData);
+                    updateNewVote(socket, voteData, room.keyVotes, room.name);
+                    break;
+                default:
+            }
+        });
+
+        function checkVotes(voteData, keyVotes) {
+            for (var i = 0; i < keyVotes.length; i++) {
+                if (keyVotes[i].key === voteData.key) {
+                    if (keyVotes[i].name === voteData.name) {
+                        if (keyVotes[i].value === voteData.value) {
+                            return -1; /* exists */
+                        } else {
+                            if (voteData.value === 1) {
+                                keyVotes[i].value = voteData.value;
+                                return 1; /* up but down */
+                            } else {
+                                keyVotes[i].value = voteData.value;
+                                return 1; /*down but up */
+                            }
+                        }
+                    }
+                }
+            }
+            return 2; /* new vote */
+        }
+
+        function vote(voteData) {
             for (var i = 0; i < room.questionArray.length; i++) {
                 if (room.questionArray[i].name === voteData.name) {
                     room.questionArray[i].score = room.questionArray[i].score + voteData.value;
                     break;
                 }
             }
-            socket.emit('vote', voteData);
-        });
-//
-//        socket.on('setname', function(userName) {
-//            socket.set('name', String(userName || 'Anonymous'));
-//            var result = [];
-//            room.roomSocketArray.forEach(function(data) {
-//                result.push(data.get('name'));
-//            });
-//            socket.broadcast('roster', result);
-//        });
+        }
+
+
+        //        socket.on('setname', function(userName) {
+        //            socket.set('name', String(userName || 'Anonymous'));
+        //            var result = [];
+        //            room.roomSocketArray.forEach(function(data) {
+        //                result.push(data.get('name'));
+        //            });
+        //            socket.broadcast('roster', result);
+        //        });
 
         socket.on('disconnect', function() {
             room.roomSocketArray.splice(room.roomSocketArray.indexOf(socket), 1);
@@ -145,6 +182,12 @@ function updateNewSession(session) {
 function updateNewQuestion(socket, question, roomName) {
     lectureSocket.emit('newquestion', question, roomName);
     socket.emit('newquestion', question);
+}
+
+function updateNewVote(socket, voteData, keyvote, roomName) {
+    lectureSocket.emit('vote', voteData, roomName);
+    socket.emit('keyVoteArray', keyvote);
+    socket.emit('vote', voteData);
 }
 
 function generateRoomKey(numberOfKeys) {
