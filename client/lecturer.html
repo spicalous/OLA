@@ -2,8 +2,9 @@
 <html lang="en" ng-app="olaApp">
     <head>
         <link rel="stylesheet" href="css/reset.css" media="all">
+        <link rel="stylesheet" href="css/index.css" media="all">
         <link href='http://fonts.googleapis.com/css?family=Ubuntu:300' rel='stylesheet' type='text/css'>
-        <title>Online Lecture Aid</title>
+        <title>Lecturer Page - Online Lecture Aid</title>
         <script src="/socket.io/socket.io.js"></script>
         <script src="/js/angular.min.js"></script>
         <script src="/js/angularModule.js"></script>
@@ -11,18 +12,54 @@
         <script type="text/javascript"></script>
     </head>
     <body>
-        <div class="main" ng-controller="LectureCtrl">
-            <h1>Overview</h1>
-            <form action="">
-                <select ng-model="selectedSession" ng-change='requestQuestionArray()' ng-options="session.name for session in sessionArray">
-                    <option value="">-- choose session --</option>
-                </select>
-            </form>
-            <div>
-                {{selectedSession.name}}<br>{{selectedSession.createDate}}
+        <div id="maincontentcontainer" ng-controller="LectureCtrl">
+            <div id="sidebarcontainer">
+                <div id="sidebarheader">
+                    <h2>Sessions</h2>
+                    <input type="button" class="minimal sidebarbutton" ng-click="setCreatePage()" value="CREATE">
+                </div>
+                <div id="list">
+                    <ul>
+                        <li ng-class="getClass($index)" ng-click="listClick(session)" ng-repeat="session in sessionArray">{{session.name}}</li>
+                    </ul>
+                </div>
             </div>
-            <div ng-repeat='question in selectedSession.questionArray'>
-                {{question.name}}, {{question.score}}
+            <div id="contentcontainer">
+                <h1>{{header}}</h1>
+                <div class="animate-switch-container" ng-switch on="page">
+                    <div class="animate-switch contents" id="sessioncontent" ng-switch-when="main" >
+                        <h2>{{selectedSession.name}}</h2><br>
+                        <p>{{selectedSession.createDate}}</p>
+                        <p id="questionlist">
+                            <div ng-repeat="questiondata in selectedSession.questionArray">{{questiondata.name}} : {{questiondata.score}}</div>
+                        </p>
+                        <p id="keylist">
+                            <div ng-repeat="keydata in selectedSession.keyArray">{{keydata.key}} : {{keydata.used}}</div>
+                        </p>
+                    </div>
+                    <div class="animate-switch contents" id="createcontent" ng-switch-when="create">
+                        <form name="form" ng-submit="createSession(newSession)" novalidate>
+                            <label>Session Name</label>
+                            <input type="text" name="SName" ng-model="newSession.name" required placeholder="Session Name">
+                            <div class="formcheck" ng-show="form.SName.$dirty && form.SName.$invalid">
+                                Session Name Required!
+                            </div>
+                            <label>Number of Keys to Generate</label>
+                            <input type="number" name="SNumber" ng-model="newSession.noOfKeys" min="1" integer required placeholder="Number of Keys to Generate">
+                            <div class="formcheck" ng-show="form.SNumber.$dirty && form.SNumber.$error.required">
+                                Number of Keys Required!
+                            </div>
+                            <div class="formcheck" ng-show="form.SNumber.$error.integer">
+                                Must be an Integer Value!
+                            </div>
+                            <div class="formcheck" ng-show="form.SNumber.$error.min">
+                                Must be more than 0!
+                            </div>
+                            <input type="submit" class="minimal button" value="CREATE SESSION" ng-disabled="form.$invalid">
+                            <input type="button" class="minimal button" value="CANCEL" ng-click="cancelCreation()">
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </body>

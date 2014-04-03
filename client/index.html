@@ -4,7 +4,7 @@
         <link rel="stylesheet" href="css/reset.css" media="all">
         <link rel="stylesheet" href="css/index.css" media="all">
         <link href='http://fonts.googleapis.com/css?family=Ubuntu:300' rel='stylesheet' type='text/css'>
-        <title>Online Lecture Aid</title>
+        <title>Sessions - Online Lecture Aid</title>
         <script src="/socket.io/socket.io.js"></script>
         <script src="/js/angular.min.js"></script>
         <script src="/js/angularModule.js"></script>
@@ -12,33 +12,33 @@
         <script type="text/javascript"></script>
     </head>
     <body>
-        <div class="introheader outer">
+        <!--<div class="introheader outer">
             <div class="middle">
                 <div class="inner">
                     <h1>Online Lecture Aid</h1>
                 </div>
             </div>
-        </div>
-        <div class="main" ng-controller="SessionCtrl">
-            <div class="sidebarcontainer">
-                <div>
-                    <h3>Sessions</h3>
-                    <form ng-submit="createSession()">
-                        <input type="text" name="session" ng-model="sessionName" placeholder="Session Name"><br>
-                        <input type="submit" class="minimal" value="CREATE">
-                    </form>
-                    <div class="list">
-                        <ul>
-                            <li ng-class="getClass($index)" ng-click="listClick($index)" ng-repeat="session in sessionArray">{{session.name}}</li>
-                        </ul>
-                    </div>
+        </div>-->
+        <div id="maincontentcontainer" ng-controller="SessionCtrl">
+            <div id="sidebarcontainer">
+                <div class="sidebarheader">
+                    <h2>Sessions</h2>
+                </div>
+                <div class="list">
+                    <ul>
+                        <li ng-class="getClass($index)" ng-click="listClick(session)" ng-repeat="session in sessionArray">{{session.name}}</li>
+                    </ul>
                 </div>
             </div>
-            <div class="contentcontainer">
+            <div id="contentcontainer">
+                <h1>Session Information</h1>
                 <div>
-                    <h3>{{selected.name}}</h3><br>
-                    <p>{{selected.createDate}}</p>
-                    <input class="minimal" type="submit" ng-show="clickedSession" ng-click="joinSession()" value="JOIN SESSION">
+                    <div class="contents">
+                        <h2>{{selected.name}}</h2><br>
+                        <p>{{selected.createDate}}</p>
+                        <p>{{selected.numberofUsers}}</p>
+                        <input class="minimal button" type="button" ng-show="clickedSession" ng-click="joinSession()" value="JOIN SESSION">
+                    </div>
                 </div>
             </div>
         </div>

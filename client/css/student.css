@@ -1,0 +1,16 @@
+#maincontentcontainer {
+    height: auto;
+    width: 100%;
+    margin: 0 auto;
+}
+
+#maincontent {
+    margin: 50px auto;
+    width: 80%;
+    max-width: 90%;
+}
+
+.toprow {
+    border-bottom: 1px solid black;
+    border-top: 1px solid black;
+}

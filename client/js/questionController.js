@@ -10,6 +10,7 @@ olaApp.controller('QuestionCtrl', function($scope, $window) {
     $scope.userName = '';
 
     questionSocket.on('connect', function(data) {
+        $scope.setName();
     });
 
     questionSocket.on('keyArray', function(data) {
@@ -41,21 +42,33 @@ olaApp.controller('QuestionCtrl', function($scope, $window) {
         $scope.$apply();
     });
 
+    questionSocket.on('roster', function(names) {
+        console.log(names);
+    });
+
     $scope.vote = function vote(index, value) {
-        var voteData = {
-            name: $scope.questionArray[index].name,
-            value: value
-        };
-        questionSocket.emit('vote', voteData);
+        if (votable) {
+            var voteData = {
+                name: $scope.questionArray[index].name,
+                value: value
+            };
+            questionSocket.emit('vote', voteData);
+        }
     };
 
     $scope.send = function send() {
         var question = {
             name: $scope.questionName,
-            score: 1
+            score: 1,
+            key: $scope.userKey,
+            user: $scope.userName
         }
         questionSocket.emit('newquestion', question);
         $scope.questionName = '';
+    };
+
+    $scope.setName = function setName() {
+        questionSocket.emit('setname', $scope.userName);
     };
 
     function getUserKey() {
