@@ -90,7 +90,7 @@ function createIORoom(session) {
                 return;
             }
             room.questionArray.push(question);
-            updateNewQuestion(socket, question, room.name);
+            updateNewQuestion(room.roomSocketArray, question, room.name);
         });
 
         socket.on('vote', function(voteData) {
@@ -98,12 +98,12 @@ function createIORoom(session) {
                 case 1:
                     voteData.value = voteData.value + voteData.value;
                     vote(voteData);
-                    updateNewVote(socket, voteData, room.keyVotes, room.name);
+                    updateNewVote(room.roomSocketArray, voteData, room.keyVotes, room.name);
                     break;
                 case 2:
                     vote(voteData);
                     room.keyVotes.push(voteData);
-                    updateNewVote(socket, voteData, room.keyVotes, room.name);
+                    updateNewVote(room.roomSocketArray, voteData, room.keyVotes, room.name);
                     break;
                 default:
             }
@@ -138,7 +138,6 @@ function createIORoom(session) {
                 }
             }
         }
-
 
         //        socket.on('setname', function(userName) {
         //            socket.set('name', String(userName || 'Anonymous'));
@@ -179,15 +178,19 @@ function updateNewSession(session) {
     sessionSocket.emit('newsession', session);
 }
 
-function updateNewQuestion(socket, question, roomName) {
+function updateNewQuestion(socketArray, question, roomName) {
     lectureSocket.emit('newquestion', question, roomName);
-    socket.emit('newquestion', question);
+    socketArray.forEach(function(socket) {
+        socket.emit('newquestion', question);
+    });
 }
 
-function updateNewVote(socket, voteData, keyvote, roomName) {
+function updateNewVote(socketArray, voteData, keyvote, roomName) {
     lectureSocket.emit('vote', voteData, roomName);
-    socket.emit('keyVoteArray', keyvote);
-    socket.emit('vote', voteData);
+    socketArray.forEach(function(socket) {
+        socket.emit('keyVoteArray', keyvote);
+        socket.emit('vote', voteData);
+    });
 }
 
 function generateRoomKey(numberOfKeys) {
