@@ -4,20 +4,26 @@ olaApp.controller('QuestionCtrl', function($scope, $window) {
     var questionSocket = io.connect(namespace);
 
     $scope.userKey = '';
-    $scope.userName = '';
+    $scope.userName = 'Anonymous';
     $scope.questionName = '';
     $scope.questionArray = [];
-    $scope.keyArray = '';
     $scope.keyVoteArray = '';
 
     questionSocket.on('connect', function(data) {
         $scope.setName();
     });
 
-    questionSocket.on('keyArray', function(data) {
-        $scope.keyArray = data;
-        $scope.$apply();
-        getUserKey();
+    questionSocket.on('requestKey', function() {
+        getUserKey('Please enter your key');
+    });
+
+    questionSocket.on('keyInputResponse', function(valid, input) {
+        if (valid) {
+            $scope.userKey = input;
+            $scope.$apply();
+        } else {
+            getUserKey('Invalid key, please enter a valid key');
+        }
     });
 
     questionSocket.on('keyVoteArray', function(data) {
@@ -57,39 +63,27 @@ olaApp.controller('QuestionCtrl', function($scope, $window) {
     }
 
     $scope.send = function send() {
-        var question = {
-            name: $scope.questionName,
-            score: 0,
-            key: $scope.userKey,
-            user: $scope.userName
-        }
-        questionSocket.emit('newquestion', question);
-        $scope.questionName = '';
-    };
-
-    $scope.setName = function setName() {
-        questionSocket.emit('setname', $scope.userName);
-    };
-
-    function getUserKey() {
-        var input = $window.prompt("Please enter your session key","");
-        if (exists(input, $scope.keyArray)) {
-            $scope.userKey = input;
-            $scope.$apply();
-        } else {
-            getUserKey;
-        }
-    }
-
-    function exists(item, array) {
-        for (var i = 0; i < array.length; i++) {
-            if (array[i].key === item) {
-                array[i].used = true;
-                return true;
-                break;
+        if (confirm("Are you sure you want to post this question?")) {
+            var question = {
+                name: $scope.questionName,
+                score: 0,
+                key: $scope.userKey,
+                user: $scope.userName
             }
+            questionSocket.emit('newquestion', question);
+            $scope.questionName = '';
         }
-        return false
+    };
+
+    function getUserKey(msg) {
+        var input = String($window.prompt(msg,'') || '');
+        console.log(input);
+        if (!input) {
+            $window.open('', '_self', '');
+            $window.close();
+        } else {
+            questionSocket.emit('keyInput', input);
+        }
     }
 
     $scope.getClass = function getClass(question, value) {

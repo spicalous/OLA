@@ -55,6 +55,10 @@ var lectureSocket = io.of('/lecturer').on('connection', function(socket) {
         socket.emit('requestSessionData', result);
     });
 
+    socket.on('deletesession', function(sessionName) {
+        sessionArray.splice(sessionArray.indexOf(sessionName), 1);
+    });
+
     socket.on('disconnect', function() {
         console.info('SERVER: User '+socket.id+' has disconnected from the lecture page');
     });
@@ -80,8 +84,24 @@ function createIORoom(session) {
         room.questionArray.forEach(function(data) {
             socket.emit('newquestion', data);
         });
-        socket.emit('keyArray', room.keyArray);
         socket.emit('keyVoteArray', room.keyVotes);
+        socket.emit('requestKey');
+
+        socket.on('keyInput', function(input) {
+            var valid = false;
+            for (var i = 0; i < room.keyArray.length; i++) {
+                if (room.keyArray[i].key === input && room.keyArray[i].used === false) {
+                    room.keyArray[i].used = true;
+                    socket.emit('keyInputResponse', true, input);
+                    lectureSocket.emit('keyUsed', input, room.name);
+                    valid = true;
+                    break;
+                }
+            }
+            if (!valid) {
+                socket.emit('keyInputResponse', false, input);
+            }
+        });
 
         socket.on('newquestion', function(question) {
             console.info('SERVER: on \'question\' - '+question.name);
@@ -138,15 +158,6 @@ function createIORoom(session) {
                 }
             }
         }
-
-        //        socket.on('setname', function(userName) {
-        //            socket.set('name', String(userName || 'Anonymous'));
-        //            var result = [];
-        //            room.roomSocketArray.forEach(function(data) {
-        //                result.push(data.get('name'));
-        //            });
-        //            socket.broadcast('roster', result);
-        //        });
 
         socket.on('disconnect', function() {
             room.roomSocketArray.splice(room.roomSocketArray.indexOf(socket), 1);

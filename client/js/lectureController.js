@@ -28,6 +28,17 @@ olaApp.controller('LectureCtrl', function($scope, $window) {
         }
     });
 
+    lectureSocket.on('keyUsed', function(input, roomName) {
+        if ($scope.selectedSession.name === roomName) {
+            for (var i = 0; i < $scope.selectedSession.keyArray.length; i++) {
+                if ($scope.selectedSession.keyArray[i].key === input) {
+                    $scope.selectedSession.keyArray[i].used = true;
+                    $scope.$apply();
+                }
+            }
+        }
+    });
+
     lectureSocket.on('vote', function(voteData, roomName) {
         console.log(voteData);
         console.log($scope.selectedSession.name);
@@ -67,6 +78,12 @@ olaApp.controller('LectureCtrl', function($scope, $window) {
             $scope.page = 'main';
             $scope.header = 'Overview';
             $scope.listClick(session);
+        }
+    }
+
+    $scope.deleteSession = function deleteSession() {
+        if (confirm("Do you really want to delete this session?")) {
+            lectureSocket.emit('deletesession', $scope.selectedSession.name);
         }
     }
 
