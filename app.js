@@ -14,7 +14,7 @@ app.get('/lecturer', function(request, response) {
     response.sendfile(__dirname + '/client/lecturer.html');
 });
 
-app.get('lecturer/:sessionid', function(request, response) {
+app.get('/lecturer/:sessionid', function(request, response) {
     response.sendfile(__dirname + '/client/data.html');
 });
 
@@ -44,7 +44,6 @@ var lectureSocket = io.of('/lecturer').on('connection', function(socket) {
     });
 
     socket.on('requestSessionData', function(sessionName) {
-        console.log('recieved');
         for (var i = 0; i < ioroomArray.length; i++) {
             if (ioroomArray[i].name === sessionName) {
                 var result = {
@@ -98,7 +97,7 @@ function createIORoom(session) {
                 if (room.keyArray[i].key === input && room.keyArray[i].used === false) {
                     room.keyArray[i].used = true;
                     socket.emit('keyInputResponse', true, input);
-                    lectureSocket.emit('keyUsed', input, room.name);
+                    room.dataSocket.emit('keyUsed', input, room.name);
                     valid = true;
                     break;
                 }
@@ -115,7 +114,7 @@ function createIORoom(session) {
                 return;
             }
             room.questionArray.push(question);
-            updateNewQuestion(room.roomSocketArray, question, room.name);
+            updateNewQuestion(room.dataSocket, room.roomSocketArray, question, room.name);
         });
 
         socket.on('vote', function(voteData) {
@@ -123,12 +122,12 @@ function createIORoom(session) {
                 case 1:
                     voteData.value = voteData.value + voteData.value;
                     vote(voteData);
-                    updateNewVote(room.roomSocketArray, voteData, room.keyVotes, room.name);
+                    updateNewVote(room.dataSocket, room.roomSocketArray, voteData, room.keyVotes, room.name);
                     break;
                 case 2:
                     vote(voteData);
                     room.keyVotes.push(voteData);
-                    updateNewVote(room.roomSocketArray, voteData, room.keyVotes, room.name);
+                    updateNewVote(room.dataSocket, room.roomSocketArray, voteData, room.keyVotes, room.name);
                     break;
                 default:
             }
@@ -162,7 +161,7 @@ function createIORoom(session) {
                     break;
                 }
             }
-
+        }
 
         socket.on('disconnect', function() {
             room.roomSocketArray.splice(room.roomSocketArray.indexOf(socket), 1);
@@ -174,13 +173,25 @@ function createIORoom(session) {
 
         console.info('SERVER: User '+socket.id+' has joined the data page');
         console.info('SERVER: /lecturer/'+session.name);
+        for (var i = 0; i < ioroomArray.length; i++) {
+            if (ioroomArray[i].name === session.name) {
+                var result = {
+                    name: ioroomArray[i].name,
+                    createDate: ioroomArray[i].createDate,
+                    questionArray: ioroomArray[i].questionArray,
+                    keyArray: ioroomArray[i].keyArray
+                }
+                break;
+            }
+        }
+        console.log('SENT : ' + result);
+        socket.emit('requestSessionData', result);
 
         socket.on('disconnect', function() {
             console.info('SERVER: User '+socket.id+' in /lecturer/'+room.name+ ' has disconnected');
         });
 
     });
-
     ioroomArray.push(room);
 }
 
@@ -205,19 +216,21 @@ function updateNewSession(session) {
     sessionSocket.emit('newsession', session);
 }
 
-function updateNewQuestion(socketArray, question, roomName) {
+function updateNewQuestion(dataSocket, socketArray, question, roomName) {
     lectureSocket.emit('newquestion', question, roomName);
     socketArray.forEach(function(socket) {
         socket.emit('newquestion', question);
     });
+    dataSocket.emit('newquestion', question, roomName);
 }
 
-function updateNewVote(socketArray, voteData, keyvote, roomName) {
+function updateNewVote(dataSocket, socketArray, voteData, keyvote, roomName) {
     lectureSocket.emit('vote', voteData, roomName);
     socketArray.forEach(function(socket) {
         socket.emit('keyVoteArray', keyvote);
         socket.emit('vote', voteData);
     });
+    dataSocket.emit('vote', voteData, roomName);
 }
 
 function generateRoomKey(numberOfKeys) {

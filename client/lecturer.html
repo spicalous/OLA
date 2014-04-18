@@ -30,12 +30,15 @@
                     <div class="animate-switch contents" id="sessioncontent" ng-switch-when="main" >
                         <h2>{{selectedSession.name}}</h2><br>
                         <p>{{selectedSession.createDate}}</p>
+                        <!--
                         <p id="questionlist">
                         <div ng-repeat="questiondata in selectedSession.questionArray">{{questiondata.score}} : {{questiondata.name}} : {{questiondata.user}} : {{questiondata.key}}</div>
                         </p>
                         <p id="keylist">
                             <div ng-repeat="keydata in selectedSession.keyArray">{{keydata.key}} : {{keydata.used}}</div>
                         </p>
+                        -->
+                        <input type="button" class="minimal button" value="VIEW SESSION" ng-show="selectedSession.name != 'Select a Session or Create a New Session'" ng-click="viewSession()">
                         <input type="button" class="minimal button" value="DELETE SESSION" ng-show="selectedSession.name != 'Select a Session or Create a New Session'" ng-click="deleteSession()">
                     </div>
                     <div class="animate-switch contents" id="createcontent" ng-switch-when="create">

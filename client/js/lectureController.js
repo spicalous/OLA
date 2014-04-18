@@ -56,7 +56,6 @@ olaApp.controller('LectureCtrl', function($scope, $window) {
     lectureSocket.on('requestSessionData', function(data) {
         $scope.selectedSession = data;
         $scope.$apply();
-        console.log(data);
     });
 
     $scope.setCreatePage = function setCreatePage() {
@@ -79,6 +78,10 @@ olaApp.controller('LectureCtrl', function($scope, $window) {
             $scope.header = 'Overview';
             $scope.listClick(session);
         }
+    }
+
+    $scope.viewSession = function viewSession() {
+        $window.open('http://' + $window.location.host +'/lecturer/'+ $scope.selectedSession.name);
     }
 
     $scope.deleteSession = function deleteSession() {
