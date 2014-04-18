@@ -1,7 +1,7 @@
-olaApp.controller('QuestionCtrl', function($scope, $window) {
+olaApp.controller('StudentCtrl', function($scope, $window) {
 
-    var namespace = '/question' + unescape($window.location.pathname);
-    var questionSocket = io.connect(namespace);
+    var namespace = '/student' + unescape($window.location.pathname);
+    var studentSocket = io.connect(namespace);
 
     $scope.userKey = '';
     $scope.userName = 'Anonymous';
@@ -9,15 +9,15 @@ olaApp.controller('QuestionCtrl', function($scope, $window) {
     $scope.questionArray = [];
     $scope.keyVoteArray = '';
 
-    questionSocket.on('connect', function(data) {
+    studentSocket.on('connect', function(data) {
         $scope.setName();
     });
 
-    questionSocket.on('requestKey', function() {
+    studentSocket.on('requestKey', function() {
         getUserKey('Please enter your key');
     });
 
-    questionSocket.on('keyInputResponse', function(valid, input) {
+    studentSocket.on('keyInputResponse', function(valid, input) {
         if (valid) {
             $scope.userKey = input;
             $scope.$apply();
@@ -26,19 +26,19 @@ olaApp.controller('QuestionCtrl', function($scope, $window) {
         }
     });
 
-    questionSocket.on('keyVoteArray', function(data) {
+    studentSocket.on('keyVoteArray', function(data) {
         $scope.keyVoteArray = data;
         $scope.$apply();
     });
 
-    questionSocket.on('newquestion', function(question) {
+    studentSocket.on('newquestion', function(question) {
         $scope.questionArray.push(question);
         //is this sort needed?
         $scope.questionArray.sort(specificSort('score'));
         $scope.$apply();
     });
 
-    questionSocket.on('vote', function(voteData) {
+    studentSocket.on('vote', function(voteData) {
         for (var i = 0; i < $scope.questionArray.length; i++) {
             if ($scope.questionArray[i].name === voteData.name) {
                 $scope.questionArray[i].score = $scope.questionArray[i].score + voteData.value;
@@ -49,7 +49,7 @@ olaApp.controller('QuestionCtrl', function($scope, $window) {
         $scope.$apply();
     });
 
-    questionSocket.on('roster', function(names) {
+    studentSocket.on('roster', function(names) {
         console.log(names);
     });
 
@@ -59,7 +59,7 @@ olaApp.controller('QuestionCtrl', function($scope, $window) {
             name: question.name,
             value: value
         };
-        questionSocket.emit('vote', voteData);
+        studentSocket.emit('vote', voteData);
     }
 
     $scope.send = function send() {
@@ -70,7 +70,7 @@ olaApp.controller('QuestionCtrl', function($scope, $window) {
                 key: $scope.userKey,
                 user: $scope.userName
             }
-            questionSocket.emit('newquestion', question);
+            studentSocket.emit('newquestion', question);
             $scope.questionName = '';
         }
     };
@@ -82,7 +82,7 @@ olaApp.controller('QuestionCtrl', function($scope, $window) {
             $window.open('', '_self', '');
             $window.close();
         } else {
-            questionSocket.emit('keyInput', input);
+            studentSocket.emit('keyInput', input);
         }
     }
 

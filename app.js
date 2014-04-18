@@ -14,6 +14,10 @@ app.get('/lecturer', function(request, response) {
     response.sendfile(__dirname + '/client/lecturer.html');
 });
 
+app.get('lecturer/:sessionid', function(request, response) {
+    response.sendfile(__dirname + '/client/data.html');
+});
+
 app.get('/:sessionid', function(request, response) {
     response.sendfile(__dirname + '/client/student.html');
 });
@@ -75,8 +79,9 @@ function createIORoom(session) {
         keyVotes: [],
         roomSocketArray: [],
         roomSocket: '',
+        dataSocket: ''
     }
-    room.roomSocket = io.of('/question/'+session.name).on('connection', function(socket) {
+    room.roomSocket = io.of('/student/'+session.name).on('connection', function(socket) {
 
         room.roomSocketArray.push(socket);
         console.info('SERVER: User '+socket.id+' has joined the room page');
@@ -157,7 +162,7 @@ function createIORoom(session) {
                     break;
                 }
             }
-        }
+
 
         socket.on('disconnect', function() {
             room.roomSocketArray.splice(room.roomSocketArray.indexOf(socket), 1);
@@ -165,6 +170,17 @@ function createIORoom(session) {
         });
 
     });
+    room.dataSocket = io.of('/lecturer/'+session.name).on('connection', function(socket) {
+
+        console.info('SERVER: User '+socket.id+' has joined the data page');
+        console.info('SERVER: /lecturer/'+session.name);
+
+        socket.on('disconnect', function() {
+            console.info('SERVER: User '+socket.id+' in /lecturer/'+room.name+ ' has disconnected');
+        });
+
+    });
+
     ioroomArray.push(room);
 }
 
