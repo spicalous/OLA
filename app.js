@@ -248,7 +248,7 @@ function generateRoomKey(numberOfKeys) {
     var count = 0;
     while (keyArray.length < numberOfKeys) {
         count++;
-        var key = ("00000" + (Math.random()*Math.pow(36,5) << 0).toString(36)).substr(-5);
+        var key = ("0000" + (Math.random()*Math.pow(36,4) << 0).toString(36)).substr(-4);
         var exists = false;
         for (var i = 0; i < keyArray.length; i++) {
             if (keyArray[i].key === key) {
