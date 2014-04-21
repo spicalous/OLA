@@ -5,6 +5,7 @@ olaApp.controller('DataCtrl', function($scope, $window) {
     var dataSocket = io.connect(namespace);
 
     $scope.selectedSession = '';
+    $scope.sortbyScore = 'false';
 
     dataSocket.on('connect', function(data) {
         //identify on connect
@@ -140,7 +141,13 @@ olaApp.controller('DataCtrl', function($scope, $window) {
         if (svgElement) {
             svgElement.remove();
         }
-        $scope.drawQuestions(data);
+        if ($scope.sortbyScore === 'true') {
+            var temp = data;
+            temp.sort(specificSort('score'));
+            $scope.drawQuestions(temp);
+        } else {
+            $scope.drawQuestions(data);
+        }
     }
 
     $scope.type = function(d) {

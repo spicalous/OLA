@@ -24,6 +24,8 @@
                     <p id="keylist">
                     <div ng-repeat="keydata in selectedSession.keyArray">{{keydata.key}} : {{keydata.used}}</div>
                     </p>
+                    <input type="radio" ng-model="sortbyScore" value="false">Sort chronologically<br>
+                    <input type="radio" ng-model="sortbyScore" value="true">Sort by Score
                 </div>
             </div>
         </div>
