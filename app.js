@@ -97,7 +97,8 @@ function createIORoom(session) {
                 if (room.keyArray[i].key === input && room.keyArray[i].used === false) {
                     room.keyArray[i].used = true;
                     socket.emit('keyInputResponse', true, input);
-                    room.dataSocket.emit('keyUsed', input, room.name);
+                    room.dataSocket.emit('keyUsed', input, true, room.name);
+                    socket.set('userKey', input);
                     valid = true;
                     break;
                 }
@@ -165,6 +166,15 @@ function createIORoom(session) {
 
         socket.on('disconnect', function() {
             room.roomSocketArray.splice(room.roomSocketArray.indexOf(socket), 1);
+            socket.get('userKey', function(err, key) {
+                for (var i = 0; i < room.keyArray.length; i++) {
+                    if (room.keyArray[i].key === key && room.keyArray[i].used === true) {
+                        room.keyArray[i].used = false;
+                        room.dataSocket.emit('keyUsed', key, false, room.name);
+                        break;
+                    }
+                }
+            });
             console.info('SERVER: User '+socket.id+' in /question/'+room.name+ ' has disconnected');
         });
 

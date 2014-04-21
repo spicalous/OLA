@@ -6,6 +6,55 @@ olaApp.controller('DataCtrl', function($scope, $window) {
 
     $scope.selectedSession = '';
 
+    dataSocket.on('connect', function(data) {
+        //identify on connect
+    });
+
+    dataSocket.on('newquestion', function(question, roomName) {
+        if ($scope.selectedSession.name === roomName) {
+            $scope.selectedSession.questionArray.push(question);
+            $scope.$apply();
+            $scope.redrawQuestions($scope.selectedSession.questionArray);
+        }
+    });
+
+    dataSocket.on('keyUsed', function(input, value, roomName) {
+        if ($scope.selectedSession.name === roomName) {
+            for (var i = 0; i < $scope.selectedSession.keyArray.length; i++) {
+                if ($scope.selectedSession.keyArray[i].key === input) {
+                    $scope.selectedSession.keyArray[i].used = value;
+                    $scope.$apply();
+                }
+            }
+        }
+    });
+
+    dataSocket.on('vote', function(voteData, roomName) {
+        if ($scope.selectedSession.name === roomName) {
+            for (var i = 0; i < $scope.selectedSession.questionArray.length; i++) {
+                if ($scope.selectedSession.questionArray[i].name === voteData.name) {
+                    $scope.selectedSession.questionArray[i].score = $scope.selectedSession.questionArray[i].score + voteData.value;
+                    break;
+                }
+            }
+            $scope.$apply();
+            $scope.redrawQuestions($scope.selectedSession.questionArray);
+            console.log($scope.selectedSession.questionArray);
+        }
+    });
+
+    dataSocket.on('requestSessionData', function(data) {
+        $scope.selectedSession = data;
+        $scope.redrawQuestions(data.questionArray);
+        $scope.$apply();
+    });
+
+    function specificSort(name) {
+        return function(b, a) {
+            return 1 * (a[name] - b[name]);
+        }
+    }
+
     // selectedSession = {
     //      name: nameofSession,
     //      createDate: Time and Date of created Session
@@ -60,7 +109,6 @@ olaApp.controller('DataCtrl', function($scope, $window) {
             + "<span style='color:red'>" + d.key + "</span>";
         });
 
-
         var bar = svg.selectAll(".bar")
         .data(data)
         .enter();
@@ -100,54 +148,4 @@ olaApp.controller('DataCtrl', function($scope, $window) {
         return d;
     };
 
-    dataSocket.on('connect', function(data) {
-        //identify on connect
-    });
-
-    dataSocket.on('newquestion', function(question, roomName) {
-        if ($scope.selectedSession.name === roomName) {
-            $scope.selectedSession.questionArray.push(question);
-            $scope.redrawQuestions(data.questionArray);
-            $scope.$apply();
-        }
-    });
-
-    dataSocket.on('keyUsed', function(input, roomName) {
-        if ($scope.selectedSession.name === roomName) {
-            for (var i = 0; i < $scope.selectedSession.keyArray.length; i++) {
-                if ($scope.selectedSession.keyArray[i].key === input) {
-                    $scope.selectedSession.keyArray[i].used = true;
-                    $scope.$apply();
-                }
-            }
-        }
-    });
-
-    dataSocket.on('vote', function(voteData, roomName) {
-        console.log(voteData);
-        console.log($scope.selectedSession.name);
-        if ($scope.selectedSession.name === roomName) {
-            for (var i = 0; i < $scope.selectedSession.questionArray.length; i++) {
-                if ($scope.selectedSession.questionArray[i].name === voteData.name) {
-                    $scope.selectedSession.questionArray[i].score = $scope.selectedSession.questionArray[i].score + voteData.value;
-                    break;
-                }
-            }
-            $scope.$apply();
-            $scope.redrawQuestions($scope.selectedSession.questionArray);
-        }
-    });
-
-    dataSocket.on('requestSessionData', function(data) {
-        console.log(data);
-        $scope.selectedSession = data;
-        $scope.redrawQuestions(data.questionArray);
-        $scope.$apply();
-    });
-
-    function specificSort(name) {
-        return function(b, a) {
-            return 1 * (a[name] - b[name]);
-        }
-    }
 });
