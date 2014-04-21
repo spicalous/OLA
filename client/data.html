@@ -9,7 +9,10 @@
         <script src="/js/angular.min.js"></script>
         <script src="/js/angularModule.js"></script>
         <script src="/js/dataController.js"></script>
+        <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+        <script src="/js/d3-tooltip.js"></script>
         <script type="text/javascript"></script>
+
     </head>
     <body>
         <div id="maincontentcontainer" ng-controller="DataCtrl">
@@ -18,9 +21,6 @@
                 <div id="sessioncontent">
                     <h2>{{selectedSession.name}}</h2><br>
                     <p>{{selectedSession.createDate}}</p>
-                    <p id="questionlist">
-                    <div ng-repeat="questiondata in selectedSession.questionArray">{{questiondata.score}} : {{questiondata.name}} : {{questiondata.user}} : {{questiondata.key}}</div>
-                    </p>
                     <p id="keylist">
                     <div ng-repeat="keydata in selectedSession.keyArray">{{keydata.key}} : {{keydata.used}}</div>
                     </p>

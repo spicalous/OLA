@@ -27,9 +27,78 @@ olaApp.controller('DataCtrl', function($scope, $window) {
     //      localhost:8080/lecturer
     //      localhost:8080/lecturer/:sessionName
     //
-    //
-    //
-    //
+    $scope.drawQuestions = function(data) {
+        var margin = {top: 30, right: 10, bottom: 10, left: 10},
+        width = 600 - margin.left - margin.right,
+        height = 300 - margin.top - margin.bottom;
+
+        var x = d3.scale.linear()
+        .range([0, width])
+
+        var y = d3.scale.ordinal()
+        .domain(data.map(function(d) { return d.name; }))
+        .rangeRoundBands([0, height], .2);
+
+        var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("top");
+
+        var svg = d3.select("#maincontentcontainer").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        x.domain(d3.extent(data, function(d) { return d.score; })).nice();
+        y.domain(data.map(function(d) { return d.name; }));
+
+        var tip = d3.tip()
+        .attr('class', 'd3-tip')
+        .offset([-10, 0])
+        .html(function(d) {
+            return "<strong>Score:</strong> <span style='color:red'>" + d.score + "<br/></span><strong>Name: </strong> <span style='color:red'>"+ d.user + "</span><br/><strong>Key: </strong>"
+            + "<span style='color:red'>" + d.key + "</span>";
+        });
+
+
+        var bar = svg.selectAll(".bar")
+        .data(data)
+        .enter();
+
+        bar.append("rect")
+        .attr("class", function(d) { return d.score < 0 ? "bar negative" : "bar positive"; })
+        .attr("x", function(d) { return x(Math.min(0, d.score)); })
+        .attr("y", function(d) { return y(d.name); })
+        .attr("width", function(d) { return Math.abs(x(d.score) - x(0)); })
+        .attr("height", y.rangeBand())
+        .on("mouseover", tip.show)
+        .on("mouseout", tip.hide);
+
+        bar.append("text")
+        .attr("x", function(d) { return x(Math.min(0, d.score)) + 5; })
+        .attr("y", function(d) { return y(d.name) + y.rangeBand()/2 + 5 ; })
+        .attr("fill", "white")
+        .text(function(d) { return d.name});
+
+        svg.append("g")
+        .attr("class", "x axis")
+        .call(xAxis);
+
+        svg.call(tip);
+    };
+
+    $scope.redrawQuestions = function(data) {
+        var svgElement = document.getElementsByTagName("svg")[0];
+        if (svgElement) {
+            svgElement.remove();
+        }
+        $scope.drawQuestions(data);
+    }
+
+    $scope.type = function(d) {
+        d.value = +d.value;
+        return d;
+    };
 
     dataSocket.on('connect', function(data) {
         //identify on connect
@@ -38,6 +107,7 @@ olaApp.controller('DataCtrl', function($scope, $window) {
     dataSocket.on('newquestion', function(question, roomName) {
         if ($scope.selectedSession.name === roomName) {
             $scope.selectedSession.questionArray.push(question);
+            $scope.redrawQuestions(data.questionArray);
             $scope.$apply();
         }
     });
@@ -64,12 +134,14 @@ olaApp.controller('DataCtrl', function($scope, $window) {
                 }
             }
             $scope.$apply();
+            $scope.redrawQuestions($scope.selectedSession.questionArray);
         }
     });
 
     dataSocket.on('requestSessionData', function(data) {
         console.log(data);
         $scope.selectedSession = data;
+        $scope.redrawQuestions(data.questionArray);
         $scope.$apply();
     });
 
