@@ -20,6 +20,10 @@ olaApp.controller('SessionCtrl', function($scope, $window) {
 
     sessionSocket.on('newsessionlist', function(data) {
         $scope.sessionArray = data;
+        $scope.selected = { 
+            name: 'Select a Session',
+            createDate: ''
+        };
         $scope.$apply();
     });
 

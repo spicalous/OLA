@@ -23,6 +23,12 @@ olaApp.controller('LectureCtrl', function($scope, $window) {
 
     lectureSocket.on('newsessionlist', function(data) {
         $scope.sessionArray = data;
+        $scope.selectedSession = {
+            name: 'Select a Session or Create a New Session',
+        createDate: '',
+        questionArray: '',
+        keyArray: ''
+        };
         $scope.$apply();
     });
 
