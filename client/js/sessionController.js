@@ -18,6 +18,11 @@ olaApp.controller('SessionCtrl', function($scope, $window) {
         $scope.$apply();
     });
 
+    sessionSocket.on('newsessionlist', function(data) {
+        $scope.sessionArray = data;
+        $scope.$apply();
+    });
+
     $scope.joinSession = function joinSession() {
         $window.open('http://' + $window.location.host +'/'+ $scope.selected.name);
     }

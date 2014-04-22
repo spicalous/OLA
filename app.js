@@ -71,6 +71,8 @@ var lectureSocket = io.of('/lecturer').on('connection', function(socket) {
                 break;
             }
         }
+        lectureSocket.emit('newsessionlist', sessionArray);
+        sessionSocket.emit('newsessionlist', sessionArray);
     });
 
     socket.on('disconnect', function() {
