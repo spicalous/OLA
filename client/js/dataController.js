@@ -69,7 +69,6 @@ olaApp.controller('DataCtrl', function($scope, $window) {
             }
             $scope.$apply();
             $scope.redrawQuestions($scope.selectedSession.questionArray);
-            console.log($scope.selectedSession.questionArray);
         }
     });
 
@@ -86,15 +85,9 @@ olaApp.controller('DataCtrl', function($scope, $window) {
     }
 
     $scope.drawQuestions = function(data) {
-        console.log(data.length);
         var margin = {top: 30, right: 10, bottom: 10, left: 10};
         var width = 700 - margin.left - margin.right;
         var height = 35 + 35*data.length;
-        /*if (data.length > 10) {
-            height = 30 * data.length;
-        } else {
-            height = 300 - margin.top - margin.bottom;
-        }*/
 
         var x = d3.scale.linear()
             .domain([Math.min(-8, d3.min(data, function(d) { return d.score})), Math.max(d3.max(data, function(d) { return d.score; }), 8)])

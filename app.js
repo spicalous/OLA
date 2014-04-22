@@ -27,13 +27,11 @@ var ioroomArray = [];
 
 var lectureSocket = io.of('/lecturer').on('connection', function(socket) {
 
-    console.info('SERVER: User '+socket.id+' has joined the lecture page');
     sessionArray.forEach(function(data) {
         socket.emit('newsession', data);
     });
 
     socket.on('newsession', function(session) {
-        console.info('SERVER: on \'newsession\' - request to create ' + session.name);
         var text = String(session.name || '');
         if (!text)
             return;
@@ -62,7 +60,6 @@ var lectureSocket = io.of('/lecturer').on('connection', function(socket) {
     });
 
     socket.on('disconnect', function() {
-        console.info('SERVER: User '+socket.id+' has disconnected from the lecture page');
     });
 
 });
@@ -82,8 +79,6 @@ function createIORoom(session) {
     room.roomSocket = io.of('/student/'+session.name).on('connection', function(socket) {
 
         room.roomSocketArray.push(socket);
-        console.info('SERVER: User '+socket.id+' has joined the room page');
-        console.info('SERVER: /question/'+session.name+'  socket length: ' + room.roomSocketArray.length);
         room.questionArray.forEach(function(data) {
             socket.emit('newquestion', data);
         });
@@ -108,7 +103,6 @@ function createIORoom(session) {
         });
 
         socket.on('newquestion', function(question) {
-            console.info('SERVER: on \'question\' - '+question.name);
             var text = String(question.name || '');
             if (!text) {
                 return;
@@ -172,14 +166,11 @@ function createIORoom(session) {
                     }
                 }
             });
-            console.info('SERVER: User '+socket.id+' in /question/'+room.name+ ' has disconnected');
         });
 
     });
     room.dataSocket = io.of('/lecturer/'+session.name).on('connection', function(socket) {
 
-        console.info('SERVER: User '+socket.id+' has joined the data page');
-        console.info('SERVER: /lecturer/'+session.name);
         for (var i = 0; i < ioroomArray.length; i++) {
             if (ioroomArray[i].name === session.name) {
                 var result = {
@@ -191,11 +182,9 @@ function createIORoom(session) {
                 break;
             }
         }
-        console.log('SENT : ' + result);
         socket.emit('requestSessionData', result);
 
         socket.on('disconnect', function() {
-            console.info('SERVER: User '+socket.id+' in /lecturer/'+room.name+ ' has disconnected');
         });
 
     });

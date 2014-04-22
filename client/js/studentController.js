@@ -50,10 +50,6 @@ olaApp.controller('StudentCtrl', function($scope, $window) {
         $scope.$apply();
     });
 
-    studentSocket.on('roster', function(names) {
-        console.log(names);
-    });
-
     $scope.vote = function vote(question, value) {
         var voteData = {
             key: $scope.userKey,
@@ -92,7 +88,6 @@ olaApp.controller('StudentCtrl', function($scope, $window) {
 
     $scope.getClass = function getClass(question, value) {
         for (var i = 0; i < $scope.keyVoteArray.length; i++) {
-            console.log('k: ' + $scope.keyVoteArray[i].key +' n: ' +$scope.keyVoteArray[i].name +' v: '+ $scope.keyVoteArray[i].value);
             if ($scope.keyVoteArray[i].key === $scope.userKey) {
                 if ($scope.keyVoteArray[i].name === question.name) {
                     if ($scope.keyVoteArray[i].value === value) {

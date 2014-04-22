@@ -14,7 +14,6 @@ olaApp.controller('SessionCtrl', function($scope, $window) {
     });
 
     sessionSocket.on('newsession', function(session) {
-        console.info('CLIENT: Recieved newsession: ' + session.name);
         $scope.sessionArray.push(session);
         $scope.$apply();
     });
