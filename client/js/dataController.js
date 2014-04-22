@@ -85,36 +85,15 @@ olaApp.controller('DataCtrl', function($scope, $window) {
         }
     }
 
-    // selectedSession = {
-    //      name: nameofSession,
-    //      createDate: Time and Date of created Session
-    //      keyArray: [] Array of       {
-    //                                      key: value of key eg. abc12,
-    //                                      used: boolean
-    //                                  }
-    //      questionArray: [] Array of  {
-    //                                      name: the question,
-    //                                      score: value of the votes,
-    //                                      user : nickname used,
-    //                                      key : key of asker
-    //                                  }
-    // }
-    //
-    //  Basic pages to navigate and create data is
-    //      localhost:8080/
-    //      localhost:8080/:sessionName
-    //      localhost:8080/lecturer
-    //      localhost:8080/lecturer/:sessionName
     $scope.drawQuestions = function(data) {
         var margin = {top: 30, right: 10, bottom: 10, left: 10},
             width = 600 - margin.left - margin.right,
             height = 300 - margin.top - margin.bottom;
 
         var x = d3.scale.linear()
-            .domain([d3.min(data, function(d) { return d.score}), d3.max(data, function(d) { return d.score})])
-            .range([0, width]);
+            .range([0, width])
 
-        var y = d3.scale.ordinal()
+            var y = d3.scale.ordinal()
             .domain(data.map(function(d) { return d.name; }))
             .rangeRoundBands([0, height], .2);
 
@@ -128,6 +107,9 @@ olaApp.controller('DataCtrl', function($scope, $window) {
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+        x.domain(d3.extent(data, function(d) { return d.score; })).nice();
+        y.domain(data.map(function(d) { return d.name; }));
+
         var tip = d3.tip()
             .attr('class', 'd3-tip')
             .offset([-10, 0])
@@ -136,15 +118,16 @@ olaApp.controller('DataCtrl', function($scope, $window) {
                 + "<span style='color:red'>" + d.key + "</span>";
             });
 
+
         var bar = svg.selectAll(".bar")
             .data(data)
             .enter();
 
         bar.append("rect")
             .attr("class", function(d) { return d.score < 0 ? "bar negative" : "bar positive"; })
-            .attr("x", function(d) { return x(Math.min(0, d.score))})
+            .attr("x", function(d) { return x(Math.min(0, d.score)); })
             .attr("y", function(d) { return y(d.name); })
-            .attr("width", function(d) { return Math.abs(x(d.score) - x(0))})
+            .attr("width", function(d) { return Math.abs(x(d.score) - x(0)); })
             .attr("height", y.rangeBand())
             .on("mouseover", tip.show)
             .on("mouseout", tip.hide);
@@ -167,6 +150,7 @@ olaApp.controller('DataCtrl', function($scope, $window) {
         if (svgElement) {
             svgElement.remove();
         }
+        data.sort(specificSort('score'));
         $scope.drawQuestions(data);
     }
 
