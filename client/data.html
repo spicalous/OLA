@@ -33,8 +33,6 @@
                     <p>
                     <div ng-show="questiondisplay.show" ng-repeat="questiondata in selectedSession.questionArray">{{questiondata.score}} : {{questiondata.key}} : {{questiondata.name}} by {{questiondata.user}}</div>
                     </p>
-                    <input type="radio" ng-model="sortbyScore" value="false">Sort chronologically<br>
-                    <input type="radio" ng-model="sortbyScore" value="true">Sort by Score
                 </div>
             </div>
         </div>
