@@ -15,6 +15,10 @@
     border-top: 1px solid black;
 }
 
+.bottomrow {
+    border-bottom: 1px solid black;
+}
+
 .table {
     height: 40px;
     display: table-cell;

@@ -23,7 +23,6 @@ app.get('/:sessionid', function(request, response) {
 });
 
 var sessionArray = [];
-var sessionSocketArray = [];
 var ioroomArray = [];
 
 var lectureSocket = io.of('/lecturer').on('connection', function(socket) {
@@ -136,18 +135,16 @@ function createIORoom(session) {
 
         function checkVotes(voteData, keyVotes) {
             for (var i = 0; i < keyVotes.length; i++) {
-                if (keyVotes[i].key === voteData.key) {
-                    if (keyVotes[i].name === voteData.name) {
-                        if (keyVotes[i].value === voteData.value) {
-                            return -1; /* exists */
+                if (keyVotes[i].key === voteData.key && keyVotes[i].name === voteData.name) {
+                    if (keyVotes[i].value === voteData.value) {
+                        return 3; /* exists */
+                    } else {
+                        if (voteData.value === 1) {
+                            keyVotes[i].value = voteData.value;
+                            return 1; /* up but down */
                         } else {
-                            if (voteData.value === 1) {
-                                keyVotes[i].value = voteData.value;
-                                return 1; /* up but down */
-                            } else {
-                                keyVotes[i].value = voteData.value;
-                                return 1; /*down but up */
-                            }
+                            keyVotes[i].value = voteData.value;
+                            return 1; /*down but up */
                         }
                     }
                 }
@@ -207,18 +204,12 @@ function createIORoom(session) {
 
 var sessionSocket = io.of('/sessionSocket').on('connection', function(socket) {
 
-    sessionSocketArray.push(socket);
     sessionArray.forEach(function(data) {
         socket.emit('newsession', data);
     });
-    console.info('SERVER: User '+socket.id+' has joined the session page');
-    console.info('SERVER: Session socket length: ' + sessionSocketArray.length);
 
     socket.on('disconnect', function() {
-        sessionSocketArray.splice(sessionSocketArray.indexOf(socket), 1);
-        console.info('SERVER: User '+socket.id+' in session has disconnected');
     });
-
 });
 
 function updateNewSession(session) {
@@ -245,9 +236,7 @@ function updateNewVote(dataSocket, socketArray, voteData, keyvote, roomName) {
 
 function generateRoomKey(numberOfKeys) {
     var keyArray = [];
-    var count = 0;
     while (keyArray.length < numberOfKeys) {
-        count++;
         var key = ("0000" + (Math.random()*Math.pow(36,4) << 0).toString(36)).substr(-4);
         var exists = false;
         for (var i = 0; i < keyArray.length; i++) {
@@ -263,7 +252,6 @@ function generateRoomKey(numberOfKeys) {
             keyArray.push(data);
         }
     }
-    console.info('SERVER: Generated ' + count + ' times');
     return keyArray;
 }
 

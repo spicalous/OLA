@@ -10,7 +10,6 @@ olaApp.controller('StudentCtrl', function($scope, $window) {
     $scope.keyVoteArray = '';
 
     studentSocket.on('connect', function(data) {
-        $scope.setName();
     });
 
     studentSocket.on('requestKey', function() {
@@ -64,20 +63,23 @@ olaApp.controller('StudentCtrl', function($scope, $window) {
 
     $scope.send = function send() {
         if (confirm("Are you sure you want to post this question?")) {
-            var question = {
-                name: $scope.questionName,
-                score: 0,
-                key: $scope.userKey,
-                user: $scope.userName
+            if ($scope.questionName.length > 40) {
+                $window.alert('Question exceeds 40 Characters');
+            } else {
+                var question = {
+                    name: $scope.questionName,
+                    score: 0,
+                    key: $scope.userKey,
+                    user: $scope.userName
+                }
+                studentSocket.emit('newquestion', question);
+                $scope.questionName = '';
             }
-            studentSocket.emit('newquestion', question);
-            $scope.questionName = '';
         }
     };
 
     function getUserKey(msg) {
         var input = String($window.prompt(msg,'') || '');
-        console.log(input);
         if (!input) {
             $window.open('', '_self', '');
             $window.close();

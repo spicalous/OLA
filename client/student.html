@@ -32,7 +32,7 @@
                     <div class="col span_1_of_8">Vote</div>
                     <div class="col span_6_of_8">Question</div>
                 </div>
-                <div class="section group" ng-repeat="question in questionArray">
+                <div class="section group bottomrow" ng-repeat="question in questionArray">
                     <div class="col span_1_of_8">
                         <div class="score table">
                             {{question.score}}
@@ -49,9 +49,9 @@
                     </div>
                 </div>
                 <div class="section group">
-                    <hr class="style">
                     <form ng-submit="send()">
                         <input type="text" ng-model="questionName" placeholder="Ask a Question">
+                        Available Characters: {{available}}
                         <input class="minimal" type="submit" value="SUBMIT">
                     </form>
                 </div>
