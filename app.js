@@ -67,6 +67,10 @@ var lectureSocket = io.of('/lecturer').on('connection', function(socket) {
                 ioroomArray[i].roomSocketArray.forEach(function(socket) {
                     socket.disconnect();
                 });
+                var roomname = ioroomArray[i].roomSocket.name;
+                var dataname = ioroomArray[i].dataSocket.name;
+                delete ioroomArray[i].roomSocket.manager.namespaces[roomname];
+                delete ioroomArray[i].dataSocket.manager.namespaces[dataname];
                 ioroomArray.splice(i, 1);
                 break;
             }
