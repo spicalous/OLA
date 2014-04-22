@@ -86,14 +86,21 @@ olaApp.controller('DataCtrl', function($scope, $window) {
     }
 
     $scope.drawQuestions = function(data) {
-        var margin = {top: 30, right: 10, bottom: 10, left: 10},
-            width = 600 - margin.left - margin.right,
+        console.log(data.length);
+        var margin = {top: 30, right: 10, bottom: 10, left: 10};
+        var width = 700 - margin.left - margin.right;
+        var height = 35 + 35*data.length;
+        /*if (data.length > 10) {
+            height = 30 * data.length;
+        } else {
             height = 300 - margin.top - margin.bottom;
+        }*/
 
         var x = d3.scale.linear()
-            .range([0, width])
+            .domain([Math.min(-8, d3.min(data, function(d) { return d.score})), Math.max(d3.max(data, function(d) { return d.score; }), 8)])
+            .range([0, width]).nice();
 
-            var y = d3.scale.ordinal()
+        var y = d3.scale.ordinal()
             .domain(data.map(function(d) { return d.name; }))
             .rangeRoundBands([0, height], .2);
 
@@ -106,9 +113,6 @@ olaApp.controller('DataCtrl', function($scope, $window) {
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-        x.domain(d3.extent(data, function(d) { return d.score; })).nice();
-        y.domain(data.map(function(d) { return d.name; }));
 
         var tip = d3.tip()
             .attr('class', 'd3-tip')

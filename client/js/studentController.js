@@ -65,8 +65,8 @@ olaApp.controller('StudentCtrl', function($scope, $window) {
 
     $scope.send = function send() {
         if (confirm("Are you sure you want to post this question?")) {
-            if ($scope.questionName.length > 40) {
-                $window.alert('Question exceeds 40 Characters');
+            if ($scope.questionName.length > 50) {
+                $window.alert('Question exceeds 50 Characters');
             } else {
                 var question = {
                     name: $scope.questionName,
