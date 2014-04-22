@@ -56,7 +56,21 @@ var lectureSocket = io.of('/lecturer').on('connection', function(socket) {
     });
 
     socket.on('deletesession', function(sessionName) {
-        sessionArray.splice(sessionArray.indexOf(sessionName), 1);
+        for (var i = 0; i < sessionArray.length; i++) {
+            if (sessionArray[i].name === sessionName) {
+                sessionArray.splice(i, 1);
+                break;
+            }
+        }
+        for (var i = 0; i < ioroomArray.length; i++) {
+            if (ioroomArray[i].name === sessionName) {
+                ioroomArray[i].roomSocketArray.forEach(function(socket) {
+                    socket.disconnect();
+                });
+                ioroomArray.splice(i, 1);
+                break;
+            }
+        }
     });
 
     socket.on('disconnect', function() {

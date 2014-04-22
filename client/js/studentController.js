@@ -61,17 +61,21 @@ olaApp.controller('StudentCtrl', function($scope, $window) {
 
     $scope.send = function send() {
         if (confirm("Are you sure you want to post this question?")) {
-            if ($scope.questionName.length > 50) {
-                $window.alert('Question exceeds 50 Characters');
+            if ($scope.questionName === '') {
+                $window.alert('Input is empty');
             } else {
-                var question = {
-                    name: $scope.questionName,
-                    score: 0,
-                    key: $scope.userKey,
-                    user: $scope.userName
+                if ($scope.questionName.length > 50) {
+                    $window.alert('Question exceeds 50 Characters');
+                } else {
+                    var question = {
+                        name: $scope.questionName,
+                        score: 0,
+                        key: $scope.userKey,
+                        user: $scope.userName
+                    }
+                    studentSocket.emit('newquestion', question);
+                    $scope.questionName = '';
                 }
-                studentSocket.emit('newquestion', question);
-                $scope.questionName = '';
             }
         }
     };
@@ -86,10 +90,10 @@ olaApp.controller('StudentCtrl', function($scope, $window) {
         }
     }
 
-    $scope.getClass = function getClass(question, value) {
-        for (var i = 0; i < $scope.keyVoteArray.length; i++) {
-            if ($scope.keyVoteArray[i].key === $scope.userKey) {
-                if ($scope.keyVoteArray[i].name === question.name) {
+        $scope.getClass = function getClass(question, value) {
+            for (var i = 0; i < $scope.keyVoteArray.length; i++) {
+                if ($scope.keyVoteArray[i].key === $scope.userKey) {
+                    if ($scope.keyVoteArray[i].name === question.name) {
                     if ($scope.keyVoteArray[i].value === value) {
                         return 'on';
                     }
