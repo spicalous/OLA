@@ -16,6 +16,7 @@
     <body>
         <div id="maincontentcontainer" ng-controller="StudentCtrl">
             <div id="maincontent">
+                <h1>{{sessionName}}</h1>
                 <div class="section group">
                     <div class="col span_8_of_8">
                         <h3>Enter a Nickname below</h3>
@@ -51,8 +52,7 @@
                 <div class="section group">
                     <form ng-submit="send()">
                         <input type="text" ng-model="questionName" placeholder="Ask a Question">
-                        Available Characters: {{available}}
-                        <input class="minimal" type="submit" value="SUBMIT">
+                        <input id="studentsubmit" class="minimal" type="submit" value="SUBMIT">
                     </form>
                 </div>
             </div>

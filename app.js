@@ -88,7 +88,7 @@ function createIORoom(session) {
             socket.emit('newquestion', data);
         });
         socket.emit('keyVoteArray', room.keyVotes);
-        socket.emit('requestKey');
+        socket.emit('requestKey', room.name);
 
         socket.on('keyInput', function(input) {
             var valid = false;

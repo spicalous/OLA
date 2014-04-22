@@ -3,6 +3,7 @@ olaApp.controller('StudentCtrl', function($scope, $window) {
     var namespace = '/student' + unescape($window.location.pathname);
     var studentSocket = io.connect(namespace);
 
+    $scope.sessionName = '';
     $scope.userKey = '';
     $scope.userName = 'Anonymous';
     $scope.questionName = '';
@@ -12,7 +13,8 @@ olaApp.controller('StudentCtrl', function($scope, $window) {
     studentSocket.on('connect', function(data) {
     });
 
-    studentSocket.on('requestKey', function() {
+    studentSocket.on('requestKey',  function(sessionName) {
+        $scope.sessionName = sessionName;
         getUserKey('Please enter your key');
     });
 
