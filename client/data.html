@@ -21,8 +21,17 @@
                 <div id="sessioncontent">
                     <h2>{{selectedSession.name}}</h2><br>
                     <p>{{selectedSession.createDate}}</p>
-                    <p id="keylist">
-                    <div ng-repeat="keydata in selectedSession.keyArray">{{keydata.key}} : {{keydata.used}}</div>
+                    <div ng-click=keyClick()>
+                        {{keydisplay.text}}
+                    </div>
+                    <p>
+                    <div ng-show="keydisplay.show" ng-repeat="keydata in selectedSession.keyArray">{{keydata.key}} : {{keydata.used}}</div>
+                    </p>
+                    <div ng-click=questionClick()>
+                        {{questiondisplay.text}}
+                    </div>
+                    <p>
+                    <div ng-show="questiondisplay.show" ng-repeat="questiondata in selectedSession.questionArray">{{questiondata.score}} : {{questiondata.key}} : {{questiondata.name}} by {{questiondata.user}}</div>
                     </p>
                     <input type="radio" ng-model="sortbyScore" value="false">Sort chronologically<br>
                     <input type="radio" ng-model="sortbyScore" value="true">Sort by Score

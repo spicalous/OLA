@@ -218,7 +218,6 @@ function updateNewSession(session) {
 }
 
 function updateNewQuestion(dataSocket, socketArray, question, roomName) {
-    lectureSocket.emit('newquestion', question, roomName);
     socketArray.forEach(function(socket) {
         socket.emit('newquestion', question);
     });
@@ -226,7 +225,6 @@ function updateNewQuestion(dataSocket, socketArray, question, roomName) {
 }
 
 function updateNewVote(dataSocket, socketArray, voteData, keyvote, roomName) {
-    lectureSocket.emit('vote', voteData, roomName);
     socketArray.forEach(function(socket) {
         socket.emit('keyVoteArray', keyvote);
         socket.emit('vote', voteData);
